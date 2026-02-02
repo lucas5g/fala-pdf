@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de PDF</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- PDF.js via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+    <div class="viewer-container">
+        <!-- Header com controles -->
+        <header class="viewer-header">
+            <div class="header-left">
+                <button id="menuToggle" class="menu-toggle" title="Menu">
+                    <span class="hamburger">☰</span>
+                </button>
+                <a href="index.html" class="btn btn-secondary">← Voltar</a>
+                <button id="viewToggle" class="btn btn-secondary" title="Alternar visualização Texto/PDF">📝 Texto</button>
+                <h1 id="pdfTitle">Carregando PDF...</h1>
+            </div>
+            <div class="page-info">
+                <span id="pageIndicator">Página 1 de 1</span>
+            </div>
+        </header>
+
+        <!-- Menu lateral de configurações -->
+        <aside id="settingsPanel" class="settings-panel">
+            <div class="settings-header">
+                <h2>⚙️ Configurações</h2>
+                <button id="closeSettings" class="close-settings">×</button>
+            </div>
+            
+            <div class="settings-content">
+                <!-- Tema -->
+                <div class="setting-item">
+                    <label>🌙 Tema</label>
+                    <div class="theme-switch">
+                        <button id="lightTheme" class="theme-btn active">☀️ Claro</button>
+                        <button id="darkTheme" class="theme-btn">🌙 Escuro</button>
+                    </div>
+                </div>
+
+                <div class="settings-divider"></div>
+
+                <!-- Voz -->
+                <div class="setting-item">
+                    <label for="voiceSelect">🎙️ Voz</label>
+                    <select id="voiceSelect" class="voice-select">
+                        <option>Carregando vozes...</option>
+                    </select>
+                </div>
+
+                <!-- Zoom PDF -->
+                <div class="setting-item">
+                    <label for="zoomInput">🔍 Zoom PDF</label>
+                    <div class="slider-container">
+                        <input type="range" id="zoomInput" min="0.5" max="2.5" step="0.1" value="1.5" class="slider">
+                        <span id="zoomValue" class="slider-value">150%</span>
+                    </div>
+                </div>
+
+                <!-- Velocidade -->
+                <div class="setting-item">
+                    <label for="rateInput">⚡ Velocidade</label>
+                    <div class="slider-container">
+                        <input type="range" id="rateInput" min="0.5" max="4" step="0.1" value="1" class="slider">
+                        <span id="rateValue" class="slider-value">1.0x</span>
+                    </div>
+                </div>
+
+                <!-- Atalhos -->
+                <div class="settings-divider"></div>
+                <div class="setting-item">
+                    <label>⌨️ Atalhos de teclado</label>
+                    <div class="shortcuts">
+                        <div class="shortcut"><kbd>←</kbd> <kbd>→</kbd> Navegar páginas</div>
+                        <div class="shortcut"><kbd>Espaço</kbd> Play/Pause</div>
+                        <div class="shortcut"><kbd>Esc</kbd> Parar</div>
+                        <div class="shortcut"><kbd>D</kbd> <kbd>S</kbd> Ajustar velocidade</div>
+                        <div class="shortcut"><kbd>+</kbd> <kbd>-</kbd> Ajustar zoom</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Área principal com PDF e texto -->
+        <main id="viewerMain" class="viewer-main">
+            <!-- Canvas para renderizar a página do PDF -->
+            <div class="pdf-canvas-container">
+                <canvas id="pdfCanvas"></canvas>
+            </div>
+
+            <!-- Área de texto extraído -->
+            <div class="text-container">
+                <h2>Texto da página</h2>
+                <div id="pageText" class="page-text">
+                    Carregando texto...
+                </div>
+            </div>
+        </main>
+
+        <!-- Controles de navegação e áudio -->
+        <footer class="viewer-controls">
+            <!-- Navegação de páginas -->
+            <div class="navigation-controls">
+                <button id="prevPage" class="btn btn-primary" disabled>
+                    ← Anterior
+                </button>
+                <button id="nextPage" class="btn btn-primary" disabled>
+                    Próxima →
+                </button>
+            </div>
+
+            <!-- Controles de áudio -->
+            <div class="audio-controls">
+                <button id="playBtn" class="btn btn-success" disabled>
+                    ▶ Ouvir página
+                </button>
+                <button id="pauseBtn" class="btn btn-warning" disabled>
+                    ⏸ Pausar
+                </button>
+                <button id="stopBtn" class="btn btn-danger" disabled>
+                    ⏹ Parar
+                </button>
+            </div>
+
+            <!-- Status do áudio -->
+            <div class="audio-status">
+                <span id="audioStatus">Pronto para reproduzir</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Carregando PDF...</p>
+    </div>
+
+    <script src="js/db-handler.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/pdf-handler.js"></script>
+    <script src="js/tts-handler.js"></script>
+    <script src="js/viewer.js"></script>
+</body>
+</html>

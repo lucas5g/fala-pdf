@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitor de PDF com Áudio</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <button id="themeToggle" class="theme-toggle theme-toggle-home" title="Alternar tema">
+            <span class="theme-icon">🌙</span>
+        </button>
+        
+        <header>
+            <h1>📖 Leitor de PDF com Áudio</h1>
+            <p>Faça upload de um PDF para começar a leitura</p>
+        </header>
+
+        <main class="upload-section">
+            <div class="upload-box">
+                <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <h2>Selecione um arquivo PDF</h2>
+                <input type="file" id="pdfInput" accept="application/pdf" class="file-input">
+                <label for="pdfInput" class="file-label">Escolher arquivo</label>
+                <p class="file-info" id="fileInfo"></p>
+            </div>
+        </main>
+
+        <footer>
+            <p>Utiliza PDF.js e Web Speech API</p>
+        </footer>
+    </div>
+
+    <script src="js/db-handler.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
