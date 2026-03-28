@@ -94,8 +94,8 @@ async function loadPage(pageNum) {
         // Extrai o texto da página
         currentPageText = await pdfHandler.extractPageText(pageNum);
         
-        // Renderiza o texto com spans para destacar
-        renderTextWithHighlight(currentPageText);
+        // Renderiza o texto extraido da pagina
+        renderPageText(currentPageText);
 
         // Atualiza a UI
         updateUI();
@@ -156,72 +156,16 @@ function getPageFromHash() {
 }
 
 /**
- * Renderiza o texto dividido em spans para permitir destaque
+ * Renderiza o texto da pagina
  * @param {string} text - Texto a ser renderizado
  */
-function renderTextWithHighlight(text) {
+function renderPageText(text) {
     if (!text || text.trim() === '') {
         pageText.innerHTML = '<span class="no-text">Nenhum texto encontrado nesta página.</span>';
         return;
     }
-    
-    // Limpa o container
-    pageText.innerHTML = '';
-    
-    // Divide o texto em caracteres mantendo espaços e quebras de linha
-    const chars = text.split('');
-    
-    chars.forEach((char, index) => {
-        const span = document.createElement('span');
-        span.textContent = char;
-        span.setAttribute('data-index', index);
-        
-        // Preserva espaços e quebras de linha
-        if (char === '\n') {
-            pageText.appendChild(document.createElement('br'));
-        } else {
-            pageText.appendChild(span);
-        }
-    });
-}
 
-/**
- * Destaca o texto sendo lido atualmente
- * @param {number} charIndex - Índice do caractere inicial
- * @param {number} charLength - Comprimento do texto a destacar
- */
-function highlightCurrentText(charIndex, charLength) {
-    // Remove TODOS os destaques anteriores
-    const previousHighlights = pageText.querySelectorAll('.reading-highlight');
-    previousHighlights.forEach(span => span.classList.remove('reading-highlight'));
-    
-    // Adiciona destaque apenas à palavra atual
-    const spans = pageText.querySelectorAll('span[data-index]');
-    
-    for (let i = charIndex; i < charIndex + charLength && i < spans.length; i++) {
-        const span = spans[i];
-        if (span) {
-            span.classList.add('reading-highlight');
-        }
-    }
-    
-    // Scroll automático para manter o texto visível
-    const highlightedSpan = spans[charIndex];
-    if (highlightedSpan) {
-        highlightedSpan.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'nearest'
-        });
-    }
-}
-
-/**
- * Remove o destaque do texto
- */
-function clearTextHighlight() {
-    const highlights = pageText.querySelectorAll('.reading-highlight');
-    highlights.forEach(span => span.classList.remove('reading-highlight'));
+    pageText.textContent = text;
 }
 
 /**
@@ -418,7 +362,6 @@ function setupEventListeners() {
         playBtn.disabled = false;
         pauseBtn.disabled = true;
         stopBtn.disabled = true;
-        clearTextHighlight();
     });
 
     // Callbacks do TTS
@@ -432,12 +375,6 @@ function setupEventListeners() {
         playBtn.disabled = false;
         pauseBtn.disabled = true;
         stopBtn.disabled = true;
-        clearTextHighlight();
-    };
-    
-    // Callback para destacar palavra sendo lida (via timer)
-    ttsHandler.onWord = (charIndex, charLength) => {
-        highlightCurrentText(charIndex, charLength);
     };
 
     ttsHandler.onPause = () => {

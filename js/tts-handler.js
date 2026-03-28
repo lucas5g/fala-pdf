@@ -19,17 +19,12 @@ class TTSHandler {
         this.rate = 1.0;
         this.pitch = 1.0;
         this.volume = 1.0;
-        this.wordTimer = null;
-        this.currentWordIndex = 0;
-        this.words = [];
-        
         // Callbacks para eventos
         this.onStart = null;
         this.onEnd = null;
         this.onPause = null;
         this.onResume = null;
         this.onVoicesChanged = null;
-        this.onWord = null;
         
         // Carrega vozes quando disponíveis
         this.loadVoices();
@@ -91,16 +86,12 @@ class TTSHandler {
             this.isPaused = false;
             console.log('✅ Iniciou a leitura');
             
-            // Inicia destaque de palavras via timer
-            this.startWordHighlight(text);
-            
             if (this.onStart) this.onStart();
         };
 
         this.utterance.onend = () => {
             this.isPlaying = false;
             this.isPaused = false;
-            this.stopWordHighlight();
             console.log('✅ Terminou a leitura');
             if (this.onEnd) this.onEnd();
         };
@@ -109,7 +100,6 @@ class TTSHandler {
             console.error('❌ Erro na leitura:', event.error, event);
             this.isPlaying = false;
             this.isPaused = false;
-            this.stopWordHighlight();
         };
 
         // Evento de boundary (detecta palavras sendo faladas)
@@ -146,7 +136,6 @@ class TTSHandler {
         if (this.isPlaying && !this.isPaused) {
             this.synth.pause();
             this.isPaused = true;
-            this.stopWordHighlight();
             console.log('Leitura pausada');
             if (this.onPause) this.onPause();
         }
@@ -159,7 +148,6 @@ class TTSHandler {
         if (this.isPaused) {
             this.synth.resume();
             this.isPaused = false;
-            this.resumeWordHighlight();
             console.log('Leitura retomada');
             if (this.onResume) this.onResume();
         }
@@ -172,7 +160,6 @@ class TTSHandler {
         this.synth.cancel();
         this.isPlaying = false;
         this.isPaused = false;
-        this.stopWordHighlight();
         console.log('🛑 Leitura parada');
     }
 
@@ -310,102 +297,6 @@ class TTSHandler {
     setVoice(voice) {
         this.selectedVoice = voice;
         console.log('Voz selecionada:', voice.name, voice.lang);
-    }
-
-    /**
-     * Inicia o destaque de palavras via timer
-     * @param {string} text - Texto completo
-     */
-    startWordHighlight(text) {
-        // Divide o texto em palavras (mantém posição no texto original)
-        this.words = [];
-        
-        // Regex para capturar palavras
-        const wordRegex = /\S+/g;
-        let match;
-        
-        while ((match = wordRegex.exec(text)) !== null) {
-            this.words.push({
-                word: match[0],
-                startIndex: match.index,
-                length: match[0].length
-            });
-        }
-        
-        console.log('📚 Total de palavras detectadas:', this.words.length);
-        if (this.words.length > 0) {
-            console.log('📝 Primeira palavra:', this.words[0]);
-            console.log('📝 Última palavra:', this.words[this.words.length - 1]);
-        }
-        
-        this.currentWordIndex = 0;
-        
-        // Velocidade ajustada: ~170 palavras por minuto = 350ms por palavra
-        // Ajustado pela taxa de velocidade configurada
-        const baseTimePerWord = 350; // ms
-        const timePerWord = baseTimePerWord / this.rate;
-        
-        console.log('⏱️ Tempo por palavra:', timePerWord.toFixed(0), 'ms (velocidade:', this.rate + 'x)');
-        
-        // Destaca a primeira palavra imediatamente
-        if (this.words.length > 0 && this.onWord) {
-            const wordInfo = this.words[0];
-            this.onWord(wordInfo.startIndex, wordInfo.length);
-            this.currentWordIndex = 1;
-        }
-        
-        // Inicia o timer para as próximas palavras
-        this.wordTimer = setInterval(() => {
-            if (this.currentWordIndex < this.words.length) {
-                const wordInfo = this.words[this.currentWordIndex];
-                
-                if (this.onWord) {
-                    this.onWord(wordInfo.startIndex, wordInfo.length);
-                }
-                
-                this.currentWordIndex++;
-            } else {
-                this.stopWordHighlight();
-            }
-        }, timePerWord);
-    }
-
-    /**
-     * Para o destaque de palavras
-     */
-    stopWordHighlight() {
-        if (this.wordTimer) {
-            clearInterval(this.wordTimer);
-            this.wordTimer = null;
-            this.currentWordIndex = 0;
-            console.log('⏹️ Timer de palavras parado');
-        }
-    }
-
-    /**
-     * Retoma o destaque de palavras
-     */
-    resumeWordHighlight() {
-        if (this.words.length > 0 && !this.wordTimer && this.currentWordIndex < this.words.length) {
-            const baseTimePerWord = 350;
-            const timePerWord = baseTimePerWord / this.rate;
-            
-            this.wordTimer = setInterval(() => {
-                if (this.currentWordIndex < this.words.length) {
-                    const wordInfo = this.words[this.currentWordIndex];
-                    
-                    if (this.onWord) {
-                        this.onWord(wordInfo.startIndex, wordInfo.length);
-                    }
-                    
-                    this.currentWordIndex++;
-                } else {
-                    this.stopWordHighlight();
-                }
-            }, timePerWord);
-            
-            console.log('▶️ Timer de palavras retomado do índice:', this.currentWordIndex);
-        }
     }
 
     /**
